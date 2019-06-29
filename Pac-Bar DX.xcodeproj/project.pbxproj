@@ -1,0 +1,479 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		F01E543F1FFA6535006BAAF8 /* 1up.wav in Resources */ = {isa = PBXBuildFile; fileRef = F01E543E1FFA6535006BAAF8 /* 1up.wav */; };
+		F037E2731DF95A3000980901 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F037E2721DF95A3000980901 /* AVFoundation.framework */; };
+		F037E27E1DF95AE100980901 /* death.wav in Resources */ = {isa = PBXBuildFile; fileRef = F037E2771DF95AE100980901 /* death.wav */; };
+		F037E27F1DF95AE100980901 /* intro.wav in Resources */ = {isa = PBXBuildFile; fileRef = F037E2781DF95AE100980901 /* intro.wav */; };
+		F037E2801DF95AE100980901 /* munch A.wav in Resources */ = {isa = PBXBuildFile; fileRef = F037E2791DF95AE100980901 /* munch A.wav */; };
+		F037E2811DF95AE100980901 /* munch B.wav in Resources */ = {isa = PBXBuildFile; fileRef = F037E27A1DF95AE100980901 /* munch B.wav */; };
+		F037E2821DF95AE100980901 /* siren fast.wav in Resources */ = {isa = PBXBuildFile; fileRef = F037E27B1DF95AE100980901 /* siren fast.wav */; };
+		F037E2831DF95AE100980901 /* siren medium.wav in Resources */ = {isa = PBXBuildFile; fileRef = F037E27C1DF95AE100980901 /* siren medium.wav */; };
+		F037E2841DF95AE100980901 /* siren slow.wav in Resources */ = {isa = PBXBuildFile; fileRef = F037E27D1DF95AE100980901 /* siren slow.wav */; };
+		F0407E361F54A552002C70B5 /* Map.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0407E351F54A552002C70B5 /* Map.swift */; };
+		F04B6845229C8B7D0000B9E4 /* default.pacmap in Resources */ = {isa = PBXBuildFile; fileRef = F04B6844229C8B7D0000B9E4 /* default.pacmap */; };
+		F050D7671DE4EF8600FA92BC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F050D7661DE4EF8600FA92BC /* Main.storyboard */; };
+		F05C8E241DE35B7E00B5CCBC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05C8E231DE35B7E00B5CCBC /* AppDelegate.swift */; };
+		F05C8E261DE35B7E00B5CCBC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05C8E251DE35B7E00B5CCBC /* ViewController.swift */; };
+		F05C8E281DE35B7E00B5CCBC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F05C8E271DE35B7E00B5CCBC /* Assets.xcassets */; };
+		F083BC0D22A989E300DD5D24 /* OldPacMan.swift in Sources */ = {isa = PBXBuildFile; fileRef = F083BC0C22A989E300DD5D24 /* OldPacMan.swift */; };
+		F083BC0F22A98A8C00DD5D24 /* OldGhost.swift in Sources */ = {isa = PBXBuildFile; fileRef = F083BC0E22A98A8C00DD5D24 /* OldGhost.swift */; };
+		F0A4615A1F7593A500188F7B /* ghost eaten.wav in Resources */ = {isa = PBXBuildFile; fileRef = F0A461561F75921C00188F7B /* ghost eaten.wav */; };
+		F0A4615B1F7593A700188F7B /* eat ghost.wav in Resources */ = {isa = PBXBuildFile; fileRef = F0A461581F75921C00188F7B /* eat ghost.wav */; };
+		F0AB84B71EE054E600B9B1E0 /* PacMan.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0AB84B61EE054E600B9B1E0 /* PacMan.swift */; };
+		F0AB84B91EE0726A00B9B1E0 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0AB84B81EE0726A00B9B1E0 /* GameScene.swift */; };
+		F0BA7A221F7EB39700D17F92 /* Fruit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0BA7A211F7EB39700D17F92 /* Fruit.swift */; };
+		F0C2136B1F9D3B780015A702 /* power.wav in Resources */ = {isa = PBXBuildFile; fileRef = F0C2136A1F9D3B780015A702 /* power.wav */; };
+		F0C384271FF320DB00E0C09D /* Intermissions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C384261FF320DB00E0C09D /* Intermissions.swift */; };
+		F0C83D431F33635B00C121EC /* Dot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C83D421F33635B00C121EC /* Dot.swift */; };
+		F0D3C4891FF30C0B003E2A8F /* eat fruit.wav in Resources */ = {isa = PBXBuildFile; fileRef = F0D3C4881FF30C0B003E2A8F /* eat fruit.wav */; };
+		F0F0C4991F33A0F300A27AB1 /* Sprite.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F0C4981F33A0F300A27AB1 /* Sprite.swift */; };
+		F0FACF3E1EE19F440071E838 /* Ghosts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FACF3D1EE19F440071E838 /* Ghosts.swift */; };
+		F0FACF421EE203860071E838 /* Wall.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FACF411EE203860071E838 /* Wall.swift */; };
+		F0FC0E991DE36B550029C782 /* WindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FC0E981DE36B550029C782 /* WindowController.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F0CEA2351EE0528700C83AD2 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		F01E543E1FFA6535006BAAF8 /* 1up.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = 1up.wav; sourceTree = "<group>"; };
+		F037E2721DF95A3000980901 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		F037E2771DF95AE100980901 /* death.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = death.wav; sourceTree = "<group>"; };
+		F037E2781DF95AE100980901 /* intro.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = intro.wav; sourceTree = "<group>"; };
+		F037E2791DF95AE100980901 /* munch A.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "munch A.wav"; sourceTree = "<group>"; };
+		F037E27A1DF95AE100980901 /* munch B.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "munch B.wav"; sourceTree = "<group>"; };
+		F037E27B1DF95AE100980901 /* siren fast.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "siren fast.wav"; sourceTree = "<group>"; };
+		F037E27C1DF95AE100980901 /* siren medium.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "siren medium.wav"; sourceTree = "<group>"; };
+		F037E27D1DF95AE100980901 /* siren slow.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "siren slow.wav"; sourceTree = "<group>"; };
+		F0407E351F54A552002C70B5 /* Map.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Map.swift; sourceTree = "<group>"; };
+		F04B6844229C8B7D0000B9E4 /* default.pacmap */ = {isa = PBXFileReference; lastKnownFileType = text; path = default.pacmap; sourceTree = "<group>"; };
+		F050D7661DE4EF8600FA92BC /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		F05C8E231DE35B7E00B5CCBC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		F05C8E251DE35B7E00B5CCBC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		F05C8E271DE35B7E00B5CCBC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F05C8E2C1DE35B7E00B5CCBC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F083BC0C22A989E300DD5D24 /* OldPacMan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldPacMan.swift; sourceTree = "<group>"; };
+		F083BC0E22A98A8C00DD5D24 /* OldGhost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldGhost.swift; sourceTree = "<group>"; };
+		F0A461561F75921C00188F7B /* ghost eaten.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "ghost eaten.wav"; sourceTree = "<group>"; };
+		F0A461581F75921C00188F7B /* eat ghost.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "eat ghost.wav"; sourceTree = "<group>"; };
+		F0AB84B61EE054E600B9B1E0 /* PacMan.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacMan.swift; sourceTree = "<group>"; };
+		F0AB84B81EE0726A00B9B1E0 /* GameScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
+		F0BA7A211F7EB39700D17F92 /* Fruit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fruit.swift; sourceTree = "<group>"; };
+		F0C2136A1F9D3B780015A702 /* power.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = power.wav; sourceTree = "<group>"; };
+		F0C384261FF320DB00E0C09D /* Intermissions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intermissions.swift; sourceTree = "<group>"; };
+		F0C83D421F33635B00C121EC /* Dot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dot.swift; sourceTree = "<group>"; };
+		F0D3C4881FF30C0B003E2A8F /* eat fruit.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "eat fruit.wav"; sourceTree = "<group>"; };
+		F0F0C4981F33A0F300A27AB1 /* Sprite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sprite.swift; sourceTree = "<group>"; };
+		F0F79011218F675600AD58C5 /* Pac-Bar DX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pac-Bar DX.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F0FACF3D1EE19F440071E838 /* Ghosts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Ghosts.swift; sourceTree = "<group>"; };
+		F0FACF411EE203860071E838 /* Wall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Wall.swift; sourceTree = "<group>"; };
+		F0FC0E981DE36B550029C782 /* WindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WindowController.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F05C8E1D1DE35B7D00B5CCBC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F037E2731DF95A3000980901 /* AVFoundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F02A2934218F687F00F9B590 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F0F79011218F675600AD58C5 /* Pac-Bar DX.app */,
+			);
+			name = Products;
+			path = "Pac-Bar DX";
+			sourceTree = "<group>";
+		};
+		F02E32B41F3769A300337B63 /* Sprite Classes */ = {
+			isa = PBXGroup;
+			children = (
+				F0F0C4981F33A0F300A27AB1 /* Sprite.swift */,
+				F0AB84B61EE054E600B9B1E0 /* PacMan.swift */,
+				F0FACF3D1EE19F440071E838 /* Ghosts.swift */,
+				F083BC0C22A989E300DD5D24 /* OldPacMan.swift */,
+				F083BC0E22A98A8C00DD5D24 /* OldGhost.swift */,
+				F0C83D421F33635B00C121EC /* Dot.swift */,
+				F0BA7A211F7EB39700D17F92 /* Fruit.swift */,
+				F0FACF411EE203860071E838 /* Wall.swift */,
+			);
+			name = "Sprite Classes";
+			sourceTree = "<group>";
+		};
+		F037E2711DF95A3000980901 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F037E2721DF95A3000980901 /* AVFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F037E2761DF95AA500980901 /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				F01E543E1FFA6535006BAAF8 /* 1up.wav */,
+				F0A461581F75921C00188F7B /* eat ghost.wav */,
+				F0C2136A1F9D3B780015A702 /* power.wav */,
+				F0A461561F75921C00188F7B /* ghost eaten.wav */,
+				F037E2771DF95AE100980901 /* death.wav */,
+				F0D3C4881FF30C0B003E2A8F /* eat fruit.wav */,
+				F037E2781DF95AE100980901 /* intro.wav */,
+				F0FACF401EE1C9DB0071E838 /* Munch */,
+				F0FACF3F1EE1C9D50071E838 /* Siren */,
+			);
+			name = Sounds;
+			sourceTree = "<group>";
+		};
+		F05C8E171DE35B7D00B5CCBC = {
+			isa = PBXGroup;
+			children = (
+				F05C8E221DE35B7E00B5CCBC /* Pac-Bar DX */,
+				F02A2934218F687F00F9B590 /* Products */,
+				F037E2711DF95A3000980901 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		F05C8E221DE35B7E00B5CCBC /* Pac-Bar DX */ = {
+			isa = PBXGroup;
+			children = (
+				F05C8E231DE35B7E00B5CCBC /* AppDelegate.swift */,
+				F05C8E251DE35B7E00B5CCBC /* ViewController.swift */,
+				F0FC0E981DE36B550029C782 /* WindowController.swift */,
+				F0AB84B81EE0726A00B9B1E0 /* GameScene.swift */,
+				F0C384261FF320DB00E0C09D /* Intermissions.swift */,
+				F0407E351F54A552002C70B5 /* Map.swift */,
+				F04B6844229C8B7D0000B9E4 /* default.pacmap */,
+				F02E32B41F3769A300337B63 /* Sprite Classes */,
+				F05C8E271DE35B7E00B5CCBC /* Assets.xcassets */,
+				F037E2761DF95AA500980901 /* Sounds */,
+				F050D7661DE4EF8600FA92BC /* Main.storyboard */,
+				F05C8E2C1DE35B7E00B5CCBC /* Info.plist */,
+			);
+			path = "Pac-Bar DX";
+			sourceTree = "<group>";
+		};
+		F0FACF3F1EE1C9D50071E838 /* Siren */ = {
+			isa = PBXGroup;
+			children = (
+				F037E27B1DF95AE100980901 /* siren fast.wav */,
+				F037E27C1DF95AE100980901 /* siren medium.wav */,
+				F037E27D1DF95AE100980901 /* siren slow.wav */,
+			);
+			name = Siren;
+			sourceTree = "<group>";
+		};
+		F0FACF401EE1C9DB0071E838 /* Munch */ = {
+			isa = PBXGroup;
+			children = (
+				F037E2791DF95AE100980901 /* munch A.wav */,
+				F037E27A1DF95AE100980901 /* munch B.wav */,
+			);
+			name = Munch;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F05C8E1F1DE35B7D00B5CCBC /* Pac-Bar DX */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F05C8E451DE35B7E00B5CCBC /* Build configuration list for PBXNativeTarget "Pac-Bar DX" */;
+			buildPhases = (
+				F05C8E1C1DE35B7D00B5CCBC /* Sources */,
+				F05C8E1D1DE35B7D00B5CCBC /* Frameworks */,
+				F05C8E1E1DE35B7D00B5CCBC /* Resources */,
+				F0CEA2351EE0528700C83AD2 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Pac-Bar DX";
+			productName = "Pac-Bar";
+			productReference = F0F79011218F675600AD58C5 /* Pac-Bar DX.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F05C8E181DE35B7D00B5CCBC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0810;
+				LastUpgradeCheck = 1020;
+				ORGANIZATIONNAME = "Henry Franks";
+				TargetAttributes = {
+					F05C8E1F1DE35B7D00B5CCBC = {
+						CreatedOnToolsVersion = 8.1;
+						DevelopmentTeam = 6K6QB4494B;
+						LastSwiftMigration = 1020;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = F05C8E1B1DE35B7D00B5CCBC /* Build configuration list for PBXProject "Pac-Bar DX" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F05C8E171DE35B7D00B5CCBC;
+			productRefGroup = F05C8E171DE35B7D00B5CCBC;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F05C8E1F1DE35B7D00B5CCBC /* Pac-Bar DX */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F05C8E1E1DE35B7D00B5CCBC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F0D3C4891FF30C0B003E2A8F /* eat fruit.wav in Resources */,
+				F01E543F1FFA6535006BAAF8 /* 1up.wav in Resources */,
+				F0A4615B1F7593A700188F7B /* eat ghost.wav in Resources */,
+				F037E2801DF95AE100980901 /* munch A.wav in Resources */,
+				F0C2136B1F9D3B780015A702 /* power.wav in Resources */,
+				F0A4615A1F7593A500188F7B /* ghost eaten.wav in Resources */,
+				F037E2831DF95AE100980901 /* siren medium.wav in Resources */,
+				F04B6845229C8B7D0000B9E4 /* default.pacmap in Resources */,
+				F037E2821DF95AE100980901 /* siren fast.wav in Resources */,
+				F05C8E281DE35B7E00B5CCBC /* Assets.xcassets in Resources */,
+				F037E2811DF95AE100980901 /* munch B.wav in Resources */,
+				F037E27F1DF95AE100980901 /* intro.wav in Resources */,
+				F037E27E1DF95AE100980901 /* death.wav in Resources */,
+				F050D7671DE4EF8600FA92BC /* Main.storyboard in Resources */,
+				F037E2841DF95AE100980901 /* siren slow.wav in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F05C8E1C1DE35B7D00B5CCBC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F0BA7A221F7EB39700D17F92 /* Fruit.swift in Sources */,
+				F0F0C4991F33A0F300A27AB1 /* Sprite.swift in Sources */,
+				F05C8E261DE35B7E00B5CCBC /* ViewController.swift in Sources */,
+				F083BC0D22A989E300DD5D24 /* OldPacMan.swift in Sources */,
+				F0AB84B91EE0726A00B9B1E0 /* GameScene.swift in Sources */,
+				F083BC0F22A98A8C00DD5D24 /* OldGhost.swift in Sources */,
+				F0FACF3E1EE19F440071E838 /* Ghosts.swift in Sources */,
+				F0FC0E991DE36B550029C782 /* WindowController.swift in Sources */,
+				F0C83D431F33635B00C121EC /* Dot.swift in Sources */,
+				F0C384271FF320DB00E0C09D /* Intermissions.swift in Sources */,
+				F0FACF421EE203860071E838 /* Wall.swift in Sources */,
+				F05C8E241DE35B7E00B5CCBC /* AppDelegate.swift in Sources */,
+				F0407E361F54A552002C70B5 /* Map.swift in Sources */,
+				F0AB84B71EE054E600B9B1E0 /* PacMan.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		F05C8E431DE35B7E00B5CCBC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Debug;
+		};
+		F05C8E441DE35B7E00B5CCBC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "";
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F05C8E461DE35B7E00B5CCBC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 6K6QB4494B;
+				INFOPLIST_FILE = "Pac-Bar DX/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.HenryFranks.Pac-Bar-DX";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F05C8E471DE35B7E00B5CCBC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 6K6QB4494B;
+				INFOPLIST_FILE = "Pac-Bar DX/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.HenryFranks.Pac-Bar-DX";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F05C8E1B1DE35B7D00B5CCBC /* Build configuration list for PBXProject "Pac-Bar DX" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F05C8E431DE35B7E00B5CCBC /* Debug */,
+				F05C8E441DE35B7E00B5CCBC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F05C8E451DE35B7E00B5CCBC /* Build configuration list for PBXNativeTarget "Pac-Bar DX" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F05C8E461DE35B7E00B5CCBC /* Debug */,
+				F05C8E471DE35B7E00B5CCBC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F05C8E181DE35B7D00B5CCBC /* Project object */;
+}
