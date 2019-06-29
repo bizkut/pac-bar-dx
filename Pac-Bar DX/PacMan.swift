@@ -198,7 +198,7 @@ class PacMan: Sprite {
 		map.isScrolling.horizontal = self.square.x > 40 && (map.width - self.square.x) > 40
 		map.isScrolling.vertical = self.square.y > 0 && self.square.y < map.height
 
-		if let dir = toMove {
+		if let dir = toMove { // TODO: add check that direction is different to current one?
 			self.changeDirection(to: dir)
 		}
 		if !canContinue() {

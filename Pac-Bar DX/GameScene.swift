@@ -204,7 +204,22 @@ var whiteTimer = 0
 var prevScore = 0
 
 // Debug
-var gameMode: Int = 0
+var gameMode: Int = 0 {
+	didSet {
+		switch gameMode {
+		case 0:
+			pMan.alpha = 1
+			pMan.isHidden = false
+		case 1:
+			pMan.alpha = 0.7
+			pMan.isHidden = false
+		case 2:
+			pMan.isHidden = true
+		default:
+			break
+		}
+	}
+}
 // GAMEMODE
 // 0 - normal gameplay
 // 1 - invulnerability
@@ -361,7 +376,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 		} else {
 			self.updateScore()
 			frameNo += 1
-			pMan.move()
+			if gameMode == 2 {
+				switch toMove {
+				case .up?:
+					origin.y -= 1
+				case .down?:
+					origin.y += 1
+				case .left?:
+					origin.x += 1
+				case .right?:
+					origin.x -= 1
+				default:
+					break
+				}
+			} else {
+				pMan.move()
+			}
 
 			for ghost in ghosts {
 				ghost.move()
@@ -698,10 +728,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 		switch event.keyCode {
 		case 18:
 			gameMode = 1
-			pMan.alpha = 0.7
+		case 19:
+			gameMode = 2
 		case 29:
 			gameMode = 0
-			pMan.alpha = 1
 		case 123:
 			toMove = .left
 		case 124:
@@ -710,7 +740,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 			toMove = .down
 		case 126:
 			toMove = .up
-		default: break
+		default:
+			break
 		}
 	}
 
@@ -858,9 +889,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 			wall.updateTexture()
 		}
 
-		if gameMode != 2 {
-			self.addChild(pMan)
-		}
+		self.addChild(pMan)
 
 		ghostsEaten = 0
 		if level == 0 && !hasStarted {
