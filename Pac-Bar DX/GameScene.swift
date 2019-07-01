@@ -50,16 +50,14 @@
  * * Classes -> Protocols?
  *
  * === BUGS ===
+ * * Ghost target squares don't update after dying -- possibly when switching to gamemode 2 while respawning
  * * Ghosts can turn blue while in ghost house and get stuck |* should be fixed -- check
  * * Elliptical Pac-Man | MAYBE FIXED??
  * * Ghosts can go through pac man: e.g. go left then immediately down and wait - blinky should pass right over you
  * * Blinky's position doesn't reset when pacman dies
  *
  * === ADDITIONAL DEBUG OPTIONS ===
- * * * Control all these via buttons or keys? e.g. numbers 1-9 toggle options in debug mode like m key for mute
- * * Invincibility
  * * Move anywhere
- * * Free camera / no pacman
  */
 
 /* MAP CO-ORDINATES

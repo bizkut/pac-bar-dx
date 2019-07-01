@@ -13,7 +13,6 @@ import AVFoundation
 var isBlue: Bool = true
 
 enum GhostAction {
-	// TODO: (21/08/18) Move all ghost states to this rather than different booleans
 	case Chasing, Fleeing, Blue, GhostHouse
 }
 
@@ -53,6 +52,10 @@ class Ghost: Sprite {
 
 		self.updatePos()
 		self.generateTexture()
+	}
+
+	required init?(coder aDecoder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
 	}
 
 	func availableDirections(includesReverse: Bool) -> [Direction] {
@@ -114,10 +117,6 @@ class Ghost: Sprite {
 			let nameAssignDict: [Direction: String] = [.up: "U", .down: "D", .left: "L", .right: "R"]
 			self.texture = self.atlas.textureNamed(self.nameAsString + nameAssignDict[self.direction]! + String(self.animationFrame))
 		}
-	}
-
-	required init?(coder aDecoder: NSCoder) {
-		fatalError("init(coder:) has not been implemented")
 	}
 
 	func changeDirection() {

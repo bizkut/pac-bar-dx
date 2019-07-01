@@ -22,8 +22,6 @@
 		F05C8E241DE35B7E00B5CCBC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05C8E231DE35B7E00B5CCBC /* AppDelegate.swift */; };
 		F05C8E261DE35B7E00B5CCBC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05C8E251DE35B7E00B5CCBC /* ViewController.swift */; };
 		F05C8E281DE35B7E00B5CCBC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F05C8E271DE35B7E00B5CCBC /* Assets.xcassets */; };
-		F083BC0D22A989E300DD5D24 /* OldPacMan.swift in Sources */ = {isa = PBXBuildFile; fileRef = F083BC0C22A989E300DD5D24 /* OldPacMan.swift */; };
-		F083BC0F22A98A8C00DD5D24 /* OldGhost.swift in Sources */ = {isa = PBXBuildFile; fileRef = F083BC0E22A98A8C00DD5D24 /* OldGhost.swift */; };
 		F0A4615A1F7593A500188F7B /* ghost eaten.wav in Resources */ = {isa = PBXBuildFile; fileRef = F0A461561F75921C00188F7B /* ghost eaten.wav */; };
 		F0A4615B1F7593A700188F7B /* eat ghost.wav in Resources */ = {isa = PBXBuildFile; fileRef = F0A461581F75921C00188F7B /* eat ghost.wav */; };
 		F0AB84B71EE054E600B9B1E0 /* PacMan.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0AB84B61EE054E600B9B1E0 /* PacMan.swift */; };
@@ -69,8 +67,6 @@
 		F05C8E251DE35B7E00B5CCBC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		F05C8E271DE35B7E00B5CCBC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F05C8E2C1DE35B7E00B5CCBC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F083BC0C22A989E300DD5D24 /* OldPacMan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldPacMan.swift; sourceTree = "<group>"; };
-		F083BC0E22A98A8C00DD5D24 /* OldGhost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldGhost.swift; sourceTree = "<group>"; };
 		F0A461561F75921C00188F7B /* ghost eaten.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "ghost eaten.wav"; sourceTree = "<group>"; };
 		F0A461581F75921C00188F7B /* eat ghost.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "eat ghost.wav"; sourceTree = "<group>"; };
 		F0AB84B61EE054E600B9B1E0 /* PacMan.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacMan.swift; sourceTree = "<group>"; };
@@ -114,8 +110,6 @@
 				F0F0C4981F33A0F300A27AB1 /* Sprite.swift */,
 				F0AB84B61EE054E600B9B1E0 /* PacMan.swift */,
 				F0FACF3D1EE19F440071E838 /* Ghosts.swift */,
-				F083BC0C22A989E300DD5D24 /* OldPacMan.swift */,
-				F083BC0E22A98A8C00DD5D24 /* OldGhost.swift */,
 				F0C83D421F33635B00C121EC /* Dot.swift */,
 				F0BA7A211F7EB39700D17F92 /* Fruit.swift */,
 				F0FACF411EE203860071E838 /* Wall.swift */,
@@ -284,9 +278,7 @@
 				F0BA7A221F7EB39700D17F92 /* Fruit.swift in Sources */,
 				F0F0C4991F33A0F300A27AB1 /* Sprite.swift in Sources */,
 				F05C8E261DE35B7E00B5CCBC /* ViewController.swift in Sources */,
-				F083BC0D22A989E300DD5D24 /* OldPacMan.swift in Sources */,
 				F0AB84B91EE0726A00B9B1E0 /* GameScene.swift in Sources */,
-				F083BC0F22A98A8C00DD5D24 /* OldGhost.swift in Sources */,
 				F0FACF3E1EE19F440071E838 /* Ghosts.swift in Sources */,
 				F0FC0E991DE36B550029C782 /* WindowController.swift in Sources */,
 				F0C83D431F33635B00C121EC /* Dot.swift in Sources */,
