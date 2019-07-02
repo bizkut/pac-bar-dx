@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		F01E543F1FFA6535006BAAF8 /* 1up.wav in Resources */ = {isa = PBXBuildFile; fileRef = F01E543E1FFA6535006BAAF8 /* 1up.wav */; };
+		F034BBF722CC0ED900AC18DB /* Definitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F034BBF622CC0ED900AC18DB /* Definitions.swift */; };
 		F037E2731DF95A3000980901 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F037E2721DF95A3000980901 /* AVFoundation.framework */; };
 		F037E27E1DF95AE100980901 /* death.wav in Resources */ = {isa = PBXBuildFile; fileRef = F037E2771DF95AE100980901 /* death.wav */; };
 		F037E27F1DF95AE100980901 /* intro.wav in Resources */ = {isa = PBXBuildFile; fileRef = F037E2781DF95AE100980901 /* intro.wav */; };
@@ -52,6 +53,7 @@
 
 /* Begin PBXFileReference section */
 		F01E543E1FFA6535006BAAF8 /* 1up.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = 1up.wav; sourceTree = "<group>"; };
+		F034BBF622CC0ED900AC18DB /* Definitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Definitions.swift; sourceTree = "<group>"; };
 		F037E2721DF95A3000980901 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		F037E2771DF95AE100980901 /* death.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = death.wav; sourceTree = "<group>"; };
 		F037E2781DF95AE100980901 /* intro.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = intro.wav; sourceTree = "<group>"; };
@@ -156,6 +158,7 @@
 				F05C8E231DE35B7E00B5CCBC /* AppDelegate.swift */,
 				F05C8E251DE35B7E00B5CCBC /* ViewController.swift */,
 				F0FC0E981DE36B550029C782 /* WindowController.swift */,
+				F034BBF622CC0ED900AC18DB /* Definitions.swift */,
 				F0AB84B81EE0726A00B9B1E0 /* GameScene.swift */,
 				F0C384261FF320DB00E0C09D /* Intermissions.swift */,
 				F0407E351F54A552002C70B5 /* Map.swift */,
@@ -275,6 +278,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F034BBF722CC0ED900AC18DB /* Definitions.swift in Sources */,
 				F0BA7A221F7EB39700D17F92 /* Fruit.swift in Sources */,
 				F0F0C4991F33A0F300A27AB1 /* Sprite.swift in Sources */,
 				F05C8E261DE35B7E00B5CCBC /* ViewController.swift in Sources */,

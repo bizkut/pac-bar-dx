@@ -137,7 +137,7 @@ class PacMan: Sprite {
 
 	override func updateSquare() {
 		super.updateSquare()
-		origin = Coords(x: Double(self.position.x) - self.globalPos.x + 4, y: Double(self.position.y) - self.globalPos.y + 4)
+		origin = Coords(x: Double(self.position.x) - self.globalPos.x + squareWidth / 2, y: Double(self.position.y) - self.globalPos.y + squareWidth / 2)
 	}
 
 	func availableDirections() -> [Direction] {

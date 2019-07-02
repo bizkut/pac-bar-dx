@@ -28,7 +28,6 @@
  *
  * === CODE ===
  * Comments
- * Create a Sprite (or similar) class that ghosts and Pac-Man all inherit from - could this control movement and square handling? | IN PROGRESS
  * Check animation/sound/timing values
  * Review/test ghost behaviour
  * Create withinBounds function to check if one param is within +/-value of another - abs of difference
@@ -45,16 +44,12 @@
  * Refactor
  * * Look at different parameter/internal function variable names e.g. with event
  * * Cleanup
- * * Could coords be replaced with two variables?
+ * * Could coords be replaced with two variables? CGPoint maybe?
  * * Change all variable names from [adj] to is[adj] / [attr] to has[attr]
- * * Classes -> Protocols?
  *
  * === BUGS ===
- * * Ghost target squares don't update after dying -- possibly when switching to gamemode 2 while respawning
- * * Ghosts can turn blue while in ghost house and get stuck |* should be fixed -- check
- * * Elliptical Pac-Man | MAYBE FIXED??
- * * Ghosts can go through pac man: e.g. go left then immediately down and wait - blinky should pass right over you
- * * Blinky's position doesn't reset when pacman dies
+ * * Ghost target squares don't update after dying -- possibly when switching to gamemode 2 while respawning | Cause found, solution in the worls
+ * * Blinky's position doesn't reset when pacman dies sometimes
  *
  * === ADDITIONAL DEBUG OPTIONS ===
  * * Move anywhere
@@ -69,140 +64,54 @@ import Cocoa
 import SpriteKit
 import AVFoundation
 
-// For integer indices
-precedencegroup PowerPrecedence {
-	higherThan: MultiplicationPrecedence
-}
-infix operator ^^ : PowerPrecedence
-func ^^ (radix: Int, power: Int) -> Int {
-	return Int(pow(Double(radix), Double(power)))
-}
-
-// *** TODO: Remove any of these that aren't needed
-func +(left: Coords, right: Coords) -> Coords {
-	return Coords(x: left.x + right.x, y: left.y + right.y)
-}
-
-func -(left: Coords, right: Coords) -> Coords {
-	return Coords(x: left.x - right.x, y: left.y - right.y)
-}
-
-// Opposite direction operator (looks nicer than function - but reduces readability)
-// --> see .inverse() function in direction class
-prefix operator ~
-prefix func ~ (direction: Direction) -> Direction {
-	switch direction {
-	case .up:
-		return .down
-	case .down:
-		return .up
-	case .left:
-		return .right
-	case .right:
-		return .left
-	}
-}
-
-struct Coords {
-	// Is this necessary? Maybe add some appropriate (and used) functions to make it worth having, otherwise it's useless
-	var x: Double = 0
-	var y: Double = 0
-
-	init(x: Double, y: Double) {
-		self.x = x
-		self.y = y
-	}
-
-	init(x: Int, y: Int) {
-		self.x = Double(x)
-		self.y = Double(y)
-	}
-}
-
-struct IntCoords: Equatable {
-	var x: Int
-	var y: Int
-
-	init(x: Int, y: Int) {
-		self.x = x
-		self.y = y
-	}
-
-	static func ==(lhs: IntCoords, rhs: IntCoords) -> Bool {
-		return lhs.x == rhs.x && lhs.y == rhs.y
-	}
-}
-
-var highScore: Int {
-	set {
-		UserDefaults.standard.set(newValue, forKey: "highScore")
-		UserDefaults.standard.synchronize()
-	}
-
-	get {
-		return UserDefaults.standard.object(forKey: "highScore") as? Int ?? 0
-	}
-}
-
-struct gamePhysics {
-	static let PacMan: UInt32 = 1 << 0
-	static let Dot: UInt32 = 1 << 1
-	static let Ghost: UInt32 = 1 << 2
-	static let Wall: UInt32 = 1 << 3
-	static let Fruit: UInt32 = 1 << 4
-}
-
-enum Direction {
-	case up, down, left, right
-
-	func inverse() -> Direction {
-		// I don't know if I should use this or an operator but I've put this here anyway
-		switch self {
-		case .up:
-			return .down
-		case .down:
-			return .up
-		case .left:
-			return .right
-		case .right:
-			return .left
-		}
-	}
-}
-
 // --- View dimensions: 30x685 ---
-
-var frameNo: Int = 0
+var mainScene = GameScene(size: CGSize(width: 685, height: 30))
 
 var mute: Bool = UserDefaults.standard.object(forKey: "mute") as? Bool ?? false
 
-var origin: Coords = Coords(x: 0, y: 0)
+var origin: Coords!
 
-var powerTimer: Int = 0
-var canResume = false
-var introPlaying = false
-var level = 0
+var score: Int!
+var lives: Int!
+var level: Int!
+var prevScore: Int!
+var whiteTimer: Int!
+var powerTimer: Int!
+var ghostsEaten: Int!
 
-var gfruits = [Fruit]()
+var white: Bool!
+var newLevel: Bool!
+var gameOver: Bool!
+var canResume: Bool!
+var hasStarted: Bool!
+var introPlaying: Bool!
+
 var pMan: PacMan!
+
 var blinky: Blinky!
 var pinky: Pinky!
 var inky: Inky!
 var clyde: Clyde!
+let ghosts = [blinky, pinky, inky, clyde] as [Ghost]
+
 var dots = [Dot]()
 var walls = [Wall]()
-var ghostsEaten: Int = 0
-var lives = 2
-var gameOver: Bool = false
-let ghosts = [blinky, pinky, inky, clyde] as [Ghost]
-var hasStarted = false
-var newLevel = true
-var white = false
-var whiteTimer = 0
-var prevScore = 0
+var gfruits = [Fruit]() // TODO: This needs renaming
+
+let directionKeyMap: [UInt16: Direction] = [
+	123: .left,
+	124: .right,
+	125: .down,
+	126: .up
+]
 
 // Debug
 var gameMode: Int = 0 {
+	// GAMEMODE
+	// 0 - normal gameplay
+	// 1 - invulnerability
+	// 2 - no pac-man, free control over map
+
 	didSet {
 		switch gameMode {
 		case 0:
@@ -218,10 +127,6 @@ var gameMode: Int = 0 {
 		}
 	}
 }
-// GAMEMODE
-// 0 - normal gameplay
-// 1 - invulnerability
-// 2 - no pac-man, free control over map
 
 var debugLabel = SKLabelNode(text: "DEBUG MODE\n\n\n\n")
 var blinkyDebug = SKLabelNode(text: "")
@@ -234,8 +139,7 @@ var pinkyReticle = SKSpriteNode(imageNamed: "PinkyReticle")
 var inkyReticle = SKSpriteNode(imageNamed: "InkyReticle")
 var clydeReticle = SKSpriteNode(imageNamed: "ClydeReticle")
 
-var mainScene = GameScene(size: CGSize(width: 685, height: 30))
-
+// TODO: eliminate these global functions by moving them to appropriate classes
 func checkWall(direction: Direction, currentCoords: IntCoords) -> Bool {
 	switch direction {
 	case .up:
@@ -259,8 +163,6 @@ func getPossibleDirections(coords: IntCoords) -> [Direction] {
 	return returnArray
 }
 
-var score: Int = 0
-
 class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body with edge loop
 	// TODO: add init and move setup to there, only add stuff that needs to be in didmovetoview there
 	let intro = URL(fileURLWithPath: Bundle.main.path(forResource: "intro", ofType: "wav")!)
@@ -276,12 +178,93 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 	var ghostCache: Ghost?
 	var gameOverHasRun = false
 	let textNode = SKSpriteNode(texture: SKTexture(imageNamed: "Ready!"), color: .clear, size: CGSize(width: 56, height: 16))
-	let effect = SKEffectNode()
+	let whiteEffect = SKEffectNode()
 	var thresh1 = 0
 	var thresh2 = 0
 
 	var levelFruit: [String] = []
 	let newFruit = ["Cherry", "Strawberry", "Orange", "Orange", "Apple", "Apple", "Melon", "Melon", "Galaxian", "Galaxian", "Bell", "Bell", "Key", "Key", "Key", "Key", "Key", "Key", "Key", "Key"]
+
+	override init(size: CGSize) {
+		super.init(size: size)
+
+		self.scaleMode = .resizeFill
+		self.backgroundColor = .black
+
+		let border = SKPhysicsBody(edgeLoopFrom: self.frame)
+		border.friction = 0
+		self.physicsBody = border
+
+		physicsWorld.contactDelegate = self
+
+		self.textNode.zPosition = 5
+		self.textNode.size = CGSize(width: 56, height: 16)
+
+		if debug {
+			self.textNode.position = CGPoint(x: 250, y: 150)
+
+			for (i, label) in [debugLabel, clydeDebug, inkyDebug, pinkyDebug, blinkyDebug].enumerated() {
+				if i == 0 {
+					label.position = CGPoint(x: 0, y: 230)
+					debugLabel.numberOfLines = 4
+				} else {
+					label.position = CGPoint(x: 0, y: 15 * i - 10)
+				}
+				label.fontSize = 12
+				label.fontName = "Monaco"
+				label.fontColor = [NSColor.white, NSColor.yellow, NSColor.cyan, NSColor.magenta, NSColor.red][i]
+				label.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
+				label.zPosition = 5
+				self.addChild(label)
+			}
+		} else {
+			self.textNode.position = CGPoint(x: 342.5, y: 15)
+		}
+
+		self.whiteEffect.filter = CIFilter(name: "CIColorControls")
+		self.addChild(self.whiteEffect)
+
+		do {
+			try map = MapData(from: Bundle.main.path(forResource: "default", ofType: fileExt) ?? "").map
+		} catch {
+			switch error as! MapError {
+			case .badGrid:
+				updateLabel("Bad Grid")
+			case .badPath:
+				updateLabel("Bad Path")
+			case .invalidSignature:
+				updateLabel("Invalid Signature")
+			case .cannotGenerateMap:
+				updateLabel("Error Generating Map")
+			default:
+				updateLabel("Error Creating Map")
+			}
+			return
+		}
+
+		level = 0
+	}
+
+	required init?(coder aDecoder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
+	}
+
+	func setup() {
+		// TODO: Copy stuff from reload() into here and stop using reload
+		score = 0
+		lives = 3
+		ghostsEaten = 0
+		gameOver = false
+		whiteTimer = 0
+		prevScore = 0
+		powerTimer = 0
+		canResume = false
+		introPlaying = false
+
+		hasStarted = false
+		newLevel = true // XXX
+		white = false
+	}
 
 	func drawMap(map: Map) {
 		var x: Int = 0
@@ -318,7 +301,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 		textField!.stringValue = value
 	}
 
-	func updateScore() {
+	func updateScore() { //TODO: can this be moved to score didSet?
 		let scoreChars = Array(String(score))
 		var lim = 6
 		if scoreChars.count < 6 {
@@ -360,9 +343,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 			}
 			whiteTimer -= 1
 			if white {
-				self.effect.filter?.setValue(0, forKey: kCIInputBrightnessKey)
+				self.whiteEffect.filter?.setValue(0, forKey: kCIInputBrightnessKey)
 			} else {
-				self.effect.filter?.setValue(1, forKey: kCIInputBrightnessKey)
+				self.whiteEffect.filter?.setValue(1, forKey: kCIInputBrightnessKey)
 			}
 			if whiteTimer > 0{
 				white = !white
@@ -373,7 +356,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 			usleep(200000)
 		} else {
 			self.updateScore()
-			frameNo += 1
 			if gameMode == 2 {
 				switch toMove {
 				case .up?:
@@ -626,13 +608,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 	}
 
 	func reload() {
-		toMove = nil
+		// TODO: This is a bit of a hack and could probably do with a proper rework
+		toMove = nil // FIXME: Make toMove a pMan attribute
 		for f in gfruits {
 			f.timer = 0
 		}
 		pMan.square = IntCoords(x: 13, y: 7)
 		pMan.inSquare = Coords(x: squareWidth, y: squareWidth / 2)
-		pMan.globalPos = Coords(x: squareWidth * Double(pMan.square.x) + pMan.inSquare.x, y: squareWidth * Double(pMan.square.y) + pMan.inSquare.y)
+		pMan.globalPos = Coords(x: squareWidth * Double(pMan.square.x) + pMan.inSquare.x, y: squareWidth * Double(pMan.square.y) + pMan.inSquare.y) // XXX: Is this covered in pMan.updateSquare()?
 		pMan.texture = pMan.frames[2]
 		pMan.direction = .left
 		pMan.zRotation = .pi
@@ -648,14 +631,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 									 y: squareWidth * Double(ghost.square.y) + ghost.inSquare.y)
 			ghost.direction = .up
 			ghost.waitCount = 0
-			ghost.state = .GhostHouse
+			ghost.state = .GhostHouse // This currently sets blinky's state to ghosthouse and causes his targetsquare to break slightly
+										// but somehow he still follows Pac-Man... maybe .GhostHouse behaviour needs to be looked into as well
 		}
 		powerTimer = 0
 		canResume = false
 		introPlaying = false
 		ghostsEaten = 0
 		gameOver = false
-		mainScene = GameScene(size: self.size)
+		mainScene = GameScene(size: self.size) // re-creating the scene again every time is probably not the best solution, maybe have a proper initialisation/reset function that handles all of this??
+		// This currently re-creates all of the dots
 		for dot in dots {
 			if dot.parent != nil {
 				dot.removeFromParent()
@@ -674,37 +659,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 		self.reload()
 	}
 
-	override init(size: CGSize) {
-		super.init(size: size)
-	}
-
-	required init?(coder aDecoder: NSCoder) {
-		fatalError("init(coder:) has not been implemented")
-	}
-
 	override func keyUp(with event: NSEvent) {
 		if gameOver {
 			return
 		}
-		switch event.keyCode {
-		case 123:
-			if toMove == .left {
+
+		if directionKeyMap.keys.contains(event.keyCode) {
+			if toMove == directionKeyMap[event.keyCode] {
 				toMove = nil
 			}
-		case 124:
-			if toMove == .right {
-				toMove = nil
-			}
-		case 125:
-			if toMove == .down {
-				toMove = nil
-			}
-		case 126:
-			if toMove == .up {
-				toMove = nil
-			}
-		default:
-			break
 		}
 	}
 
@@ -715,12 +678,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 		}
 
 		if gameOver {
-			if event.keyCode == 49 && mainScene.textNode.size == CGSize(width: 88, height: 16) {
+			if event.keyCode == 49 && mainScene.textNode.size == CGSize(width: 88, height: 16) { // XXX: The size check is a hack, maybe need to set a resettable flag
 				level = 0
 				lives = 2
 				mainScene.reset()
 			}
 			return
+		}
+
+		if directionKeyMap.keys.contains(event.keyCode) {
+			toMove = directionKeyMap[event.keyCode]
 		}
 
 		switch event.keyCode {
@@ -730,94 +697,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 			gameMode = 2
 		case 29:
 			gameMode = 0
-		case 123:
-			toMove = .left
-		case 124:
-			toMove = .right
-		case 125:
-			toMove = .down
-		case 126:
-			toMove = .up
 		default:
 			break
 		}
 	}
 
-	override func didMove(to view: SKView) {
-		super.didMove(to: view)
-        self.isPaused = true // Stops update() from calling while scene is initialising
-
-		if debug {
-			self.size = view.bounds.size
-			self.textNode.position = CGPoint(x: 250, y: 150)
-
-			// TODO: Maybe work this into the loop to avoid repeating code -- is this comment meant for the debuglabel code below??
-			debugLabel.position = CGPoint(x: 0, y: 230)
-			debugLabel.fontSize = 12
-			debugLabel.fontName = "Monaco"
-			debugLabel.fontColor = NSColor.white
-			debugLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
-			debugLabel.zPosition = 5
-			debugLabel.numberOfLines = 5
-			self.addChild(debugLabel)
-
-			for (i, ghostLabel) in [clydeDebug, inkyDebug, pinkyDebug, blinkyDebug].enumerated() {
-				ghostLabel.position = CGPoint(x: 0, y: 15 * i + 5)
-				ghostLabel.fontSize = 12
-				ghostLabel.fontName = "Monaco"
-				ghostLabel.fontColor = [NSColor.yellow, NSColor.cyan, NSColor.magenta, NSColor.red][i]
-				ghostLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
-				ghostLabel.zPosition = 5
-				self.addChild(ghostLabel)
-			}
-		} else {
-			self.textNode.position = CGPoint(x: 342.5, y: 15)
-		}
-
-		self.scaleMode = .resizeFill
-		self.backgroundColor = .black
-		physicsWorld.contactDelegate = self
-		let border = SKPhysicsBody(edgeLoopFrom: self.frame)
-		border.friction = 0
-		self.physicsBody = border
-
-		self.textNode.zPosition = 5
-		self.textNode.size = CGSize(width: 56, height: 16)
-		updateLabel("")
-        
-        do {
-            try map = MapData(from: Bundle.main.path(forResource: "default", ofType: fileExt) ?? "").map
-        } catch {
-			switch error as! MapError {
-			case .badGrid:
-				updateLabel("Bad Grid")
-			case .badPath:
-				updateLabel("Bad Path")
-			case .invalidSignature:
-				updateLabel("Invalid Signature")
-			case .cannotGenerateMap:
-				updateLabel("Error Generating Map")
-			default:
-				updateLabel("Error Creating Map")
-			}
-            return
-        }
-        pMan = PacMan(x: 13, y: 7)
-        blinky = Blinky(x: 13, y: 19)
-        pinky = Pinky(x: 13, y: 16)
-        inky = Inky(x: 11, y: 16)
-        clyde = Clyde(x: 15, y: 16)
-
-		if lives > 0 {
-			for i in 0...(lives - 1) {
+	func updateLivesTiles() {
+		for i in 0...(livesTiles.count - 1) {
+			if i < lives {
 				livesTiles[i].image = NSImage(named: "Life")
+			} else {
+				livesTiles[i].image = nil
 			}
 		}
+	}
 
-		for i in lives...(livesTiles.count - 1) {
-			livesTiles[i].image = nil
-		}
-
+	func updateFruitTiles() {
 		if level < 6 {
 			levelFruit = Array(self.newFruit[0...level])
 		} else {
@@ -831,31 +726,52 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 				fruitTiles[i].image = nil
 			}
 		}
+	}
 
-		/*func wallFor(x: Int, y: Int) -> Wall {
-			return walls[x + y * map.width]
-		}*/
+	override func didMove(to view: SKView) {
+		super.didMove(to: view)
+		self.isPaused = true // Stops update() from calling while scene is initialising
+
+		self.setup()
+
+		updateLabel("")
+
+		// TODO: These should be moved out of didMove and Sprite should have a reset/setup method
+        pMan = PacMan(x: 13, y: 7)
+        blinky = Blinky(x: 13, y: 19)
+        pinky = Pinky(x: 13, y: 16)
+        inky = Inky(x: 11, y: 16)
+        clyde = Clyde(x: 15, y: 16)
+
+		self.updateLivesTiles()
+		self.updateFruitTiles()
+		// TODO: Animation at start of game where life disappears: start lives on 3 then decrease by 1
 
 		self.initAudio(audio: &self.secondaryAudio, url: self.eatGhostSound, loop: false, play: false)
-		origin = Coords(x: Double(pMan.position.x) - pMan.globalPos.x + 4, y: Double(pMan.position.y) - pMan.globalPos.y + 4)
+
+		// ==========================================================
+		// TODO: Add a createWalls() or similar function that creates all the walls and sets them up correctly
+		// TODO: Replace x and y with enumerations or similar?
+		// -- Maybe `for x in 0...map.width`
+		// -- and `for y in 0...map.height`
+		// -- then do `squares[y+map.width + x]`??
 		var x: Int = 0
 		var y: Int = 0
-
-		effect.filter = CIFilter(name: "CIColorControls")
-		self.addChild(effect)
-
-		pMan.size = CGSize(width: 1.625 * Double(squareWidth), height: 1.625 * Double(squareWidth))
-
 		if newLevel {
 			walls = [Wall]()
 			dots = [Dot]()
 			gfruits = [Fruit]()
+
 			for square in map.squares {
 				if square.wall {
+					// TODO: implement proper algorithm (it's on paper somewhere...): need a function in map that finds the edges of the map
+					// IDEA FOR A NEW ALGORITHM:
+					// Fill in from each edge until a non-wall square is found, each wall is marked as an edge
+					// --> just need to do each row horizontally from both ends (or only 1 end if all walls are edge)
 					let wall = Wall(forSquare: square, x: x, y: y)
 					wall.edge = x == 0 || x == map.width - 1 || y == 0 || y == (map.squares.count / map.width) - 1
 					walls.append(wall)
-					effect.addChild(wall)
+					self.whiteEffect.addChild(wall)
 				} else if square.dot {
 					let dot = Dot(x: x, y: y, power: square.power)
 					dots.append(dot)
@@ -869,16 +785,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 					y += 1
 				}
 			}
+
 			newLevel = false
 		} else {
 			for wall in walls {
-				effect.addChild(wall)
+				self.whiteEffect.addChild(wall)
 				wall.updatePos()
 			}
 			for dot in dots {
 				dot.update()
 			}
 		}
+		// ==========================================================
 
 		self.thresh1 = dots.count / 2
 		self.thresh2 = dots.count / 10
@@ -886,6 +804,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 		for wall in walls {
 			wall.updateTexture()
 		}
+		// FIXME: There are a lot of calls of `for wall in walls` above, maybe look into reducing that?
 
 		self.addChild(pMan)
 
@@ -899,6 +818,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 
 			DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 4.0) {
 				self.textNode.removeFromParent()
+				lives -= 1
+				self.updateLivesTiles()
 				self.isPaused = false
 				self.isPaused = true
 			}
