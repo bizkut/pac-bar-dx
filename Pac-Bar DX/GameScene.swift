@@ -264,6 +264,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 		hasStarted = false
 		newLevel = true // XXX
 		white = false
+
+		self.addDots()
+		self.addWalls()
+	}
+
+	func addDots() {
+		for dot in dots {
+			dot.update()
+			self.addChild(dot)
+		}
+	}
+
+	func addWalls() {
+		for wall in walls {
+			wall.updatePos()
+			self.addChild(wall)
+		}
 	}
 
 	func drawMap(map: Map) {
@@ -769,7 +786,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 					// Fill in from each edge until a non-wall square is found, each wall is marked as an edge
 					// --> just need to do each row horizontally from both ends (or only 1 end if all walls are edge)
 					let wall = Wall(forSquare: square, x: x, y: y)
-					wall.edge = x == 0 || x == map.width - 1 || y == 0 || y == (map.squares.count / map.width) - 1
 					walls.append(wall)
 					self.whiteEffect.addChild(wall)
 				} else if square.dot {

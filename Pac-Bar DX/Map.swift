@@ -97,6 +97,29 @@ struct Map {
 			self.squares += grid[startIndex...endIndex]
 		}
 
+		// Find walls which are edges
+		// TODO: There are a lot of calls to self.squares[y * self.width + x] here which could probably be reduced
+		for y in 0..<self.height {
+			for x in 0..<self.width {
+				if !self.squares[y * self.width + x].wall {
+					break
+				}
+				self.squares[y * self.width + x].edge = true
+			}
+
+			if !self.squares[(y + 1) * self.width - 1].edge {
+				for x in (0..<self.width).reversed() {
+					print(x)
+					if self.squares[y * self.width + x].edge || !self.squares[y * self.width + x].wall {
+						break
+					}
+					self.squares[y * self.width + x].edge = true
+				}
+			}
+		}
+
+		// Find exits to the ghosthouse
+		// This is a hack currently that should be reworked with proper map data for exits
 		for (i, square) in self.squares.enumerated() {
 			if square.ghostHouse {
 				var available = [Square]()

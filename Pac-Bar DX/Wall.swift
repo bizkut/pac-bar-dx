@@ -15,13 +15,14 @@ class Wall: SKSpriteNode {
 	let square: Square
 	let atlas = SKTextureAtlas(named: "Walls")
 	var coords: IntCoords = IntCoords(x: 0, y: 0)
-	var edge: Bool = false
+	var edge: Bool
 	var facing: Direction? = nil
 
 	init(forSquare: Square, x: Int, y: Int) {
 		self.byteString = String(forSquare.data, radix: 2)
 		self.square = forSquare
 		self.coords = IntCoords(x: x, y: y)
+		self.edge = forSquare.edge
 		self.wallString = ""
 		super.init(texture: self.atlas.textureNamed(self.wallString), color: .clear, size: CGSize(width: squareWidth, height: squareWidth))
 		self.zPosition = 0
