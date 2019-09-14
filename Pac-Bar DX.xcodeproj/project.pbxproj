@@ -31,6 +31,7 @@
 		F0C2136B1F9D3B780015A702 /* power.wav in Resources */ = {isa = PBXBuildFile; fileRef = F0C2136A1F9D3B780015A702 /* power.wav */; };
 		F0C384271FF320DB00E0C09D /* Intermissions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C384261FF320DB00E0C09D /* Intermissions.swift */; };
 		F0C83D431F33635B00C121EC /* Dot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C83D421F33635B00C121EC /* Dot.swift */; };
+		F0CB4632232D329F008E201D /* DebugReticle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0CB4631232D329F008E201D /* DebugReticle.swift */; };
 		F0D3C4891FF30C0B003E2A8F /* eat fruit.wav in Resources */ = {isa = PBXBuildFile; fileRef = F0D3C4881FF30C0B003E2A8F /* eat fruit.wav */; };
 		F0F0C4991F33A0F300A27AB1 /* Sprite.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F0C4981F33A0F300A27AB1 /* Sprite.swift */; };
 		F0FACF3E1EE19F440071E838 /* Ghosts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FACF3D1EE19F440071E838 /* Ghosts.swift */; };
@@ -77,6 +78,7 @@
 		F0C2136A1F9D3B780015A702 /* power.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = power.wav; sourceTree = "<group>"; };
 		F0C384261FF320DB00E0C09D /* Intermissions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intermissions.swift; sourceTree = "<group>"; };
 		F0C83D421F33635B00C121EC /* Dot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dot.swift; sourceTree = "<group>"; };
+		F0CB4631232D329F008E201D /* DebugReticle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugReticle.swift; sourceTree = "<group>"; };
 		F0D3C4881FF30C0B003E2A8F /* eat fruit.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "eat fruit.wav"; sourceTree = "<group>"; };
 		F0F0C4981F33A0F300A27AB1 /* Sprite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sprite.swift; sourceTree = "<group>"; };
 		F0F79011218F675600AD58C5 /* Pac-Bar DX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pac-Bar DX.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -115,6 +117,7 @@
 				F0C83D421F33635B00C121EC /* Dot.swift */,
 				F0BA7A211F7EB39700D17F92 /* Fruit.swift */,
 				F0FACF411EE203860071E838 /* Wall.swift */,
+				F0CB4631232D329F008E201D /* DebugReticle.swift */,
 			);
 			name = "Sprite Classes";
 			sourceTree = "<group>";
@@ -278,6 +281,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F0CB4632232D329F008E201D /* DebugReticle.swift in Sources */,
 				F034BBF722CC0ED900AC18DB /* Definitions.swift in Sources */,
 				F0BA7A221F7EB39700D17F92 /* Fruit.swift in Sources */,
 				F0F0C4991F33A0F300A27AB1 /* Sprite.swift in Sources */,

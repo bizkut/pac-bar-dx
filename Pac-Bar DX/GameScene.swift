@@ -147,10 +147,10 @@ var pinkyDebug = SKLabelNode(text: "")
 var inkyDebug = SKLabelNode(text: "")
 var clydeDebug = SKLabelNode(text: "")
 
-var blinkyReticle = SKSpriteNode(imageNamed: "BlinkyReticle")
-var pinkyReticle = SKSpriteNode(imageNamed: "PinkyReticle")
-var inkyReticle = SKSpriteNode(imageNamed: "InkyReticle")
-var clydeReticle = SKSpriteNode(imageNamed: "ClydeReticle")
+var blinkyReticle = DebugReticle(name: "Blinky")
+var pinkyReticle = DebugReticle(name: "Pinky")
+var inkyReticle = DebugReticle(name: "Inky")
+var clydeReticle = DebugReticle(name: "Clyde")
 
 // TODO: eliminate these global functions by moving them to appropriate classes
 func checkWall(direction: Direction, currentCoords: IntCoords) -> Bool {
@@ -479,15 +479,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 				inkyDebug.text = "INKY   | State: \(inky.state) | Wait Timer: \(inky.waitCount) | Pos: \(inky.square.x), \(inky.square.y)"
 				clydeDebug.text = "CLYDE  | State: \(clyde.state) | Wait Timer: \(clyde.waitCount) | Pos: \(clyde.square.x), \(clyde.square.y)"
 
-				blinkyReticle.position = CGPoint(x: CGFloat(squareWidth * Double(blinky.targetSquare.x) + origin.x),
-												 y: CGFloat(squareWidth * Double(blinky.targetSquare.y) + origin.y))
-				pinkyReticle.position = CGPoint(x: CGFloat(squareWidth * Double(pinky.targetSquare.x) + origin.x),
-												y: CGFloat(squareWidth * Double(pinky.targetSquare.y) + origin.y))
-				inkyReticle.position = CGPoint(x: CGFloat(squareWidth * Double(inky.targetSquare.x) + origin.x),
-											   y: CGFloat(squareWidth * Double(inky.targetSquare.y) + origin.y))
-				clydeReticle.position = CGPoint(x: CGFloat(squareWidth * Double(clyde.targetSquare.x) + origin.x),
-												y: CGFloat(squareWidth * Double(clyde.targetSquare.y) + origin.y))
+				self.updateReticles()
 			}
+		}
+	}
+
+	func updateReticles() {
+		blinkyReticle.coords = blinky.targetSquare
+		pinkyReticle.coords = pinky.targetSquare
+		inkyReticle.coords = inky.targetSquare
+		clydeReticle.coords = clyde.targetSquare
+
+		for reticle in [blinkyReticle, pinkyReticle, inkyReticle, clydeReticle] {
+			reticle.update()
 		}
 	}
 
@@ -737,13 +741,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 
 	func addGhosts() {
 		for ghost in ghosts {
-			ghost.updatePos()
+			ghost.setup()
 			self.addChild(ghost)
 		}
 
 		if debug {
+			self.updateReticles()
+
 			for reticle in [blinkyReticle, pinkyReticle, inkyReticle, clydeReticle] {
-				reticle.size = CGSize(width: squareWidth, height: squareWidth)
 				self.addChild(reticle)
 			}
 		}
