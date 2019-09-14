@@ -109,7 +109,6 @@ struct Map {
 
 			if !self.squares[(y + 1) * self.width - 1].edge {
 				for x in (0..<self.width).reversed() {
-					print(x)
 					if self.squares[y * self.width + x].edge || !self.squares[y * self.width + x].wall {
 						break
 					}
@@ -118,7 +117,7 @@ struct Map {
 			}
 		}
 
-		// Find exits to the ghosthouse
+		// Find exits to the ghost house
 		// This is a hack currently that should be reworked with proper map data for exits
 		for (i, square) in self.squares.enumerated() {
 			if square.ghostHouse {

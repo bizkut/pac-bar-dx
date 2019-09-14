@@ -50,6 +50,7 @@
  * === BUGS ===
  * * Ghost target squares don't update after dying -- possibly when switching to gamemode 2 while respawning | Cause found, solution in the worls
  * * Blinky's position doesn't reset when pacman dies sometimes
+ * * If pacman is stuck inside a wall using gamemode 3 then gamemode 2 is used to move the camera, the map doesn't update after gamemode is switched back to 1 or 0
  *
  * === ADDITIONAL DEBUG OPTIONS ===
  * * Move anywhere
@@ -80,7 +81,6 @@ var powerTimer: Int!
 var ghostsEaten: Int!
 
 var white: Bool!
-var newLevel: Bool!
 var gameOver: Bool!
 var canResume: Bool!
 var hasStarted: Bool!
@@ -105,6 +105,8 @@ let directionKeyMap: [UInt16: Direction] = [
 	126: .up
 ]
 
+let gameModeKeyMap: [UInt16] = [29, 18, 19, 20]
+
 // Debug
 var gameMode: Int = 0 {
 	// GAMEMODE
@@ -117,11 +119,22 @@ var gameMode: Int = 0 {
 		case 0:
 			pMan.alpha = 1
 			pMan.isHidden = false
+			pMan.color = .clear
+			pMan.colorBlendFactor = 0
 		case 1:
 			pMan.alpha = 0.7
 			pMan.isHidden = false
+			pMan.color = .clear
+			pMan.colorBlendFactor = 0
 		case 2:
 			pMan.isHidden = true
+			pMan.color = .clear
+			pMan.colorBlendFactor = 0
+		case 3:
+			pMan.alpha = 0.7
+			pMan.isHidden = false
+			pMan.color = .green
+			pMan.colorBlendFactor = 1
 		default:
 			break
 		}
@@ -164,7 +177,6 @@ func getPossibleDirections(coords: IntCoords) -> [Direction] {
 }
 
 class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body with edge loop
-	// TODO: add init and move setup to there, only add stuff that needs to be in didmovetoview there
 	let intro = URL(fileURLWithPath: Bundle.main.path(forResource: "intro", ofType: "wav")!)
 	let powerSound = URL(fileURLWithPath: Bundle.main.path(forResource: "power", ofType: "wav")!)
 	let bg1 = URL(fileURLWithPath: Bundle.main.path(forResource: "siren slow", ofType: "wav")!)
@@ -229,142 +241,152 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 		} catch {
 			switch error as! MapError {
 			case .badGrid:
-				updateLabel("Bad Grid")
+				self.updateLabel("Bad Grid")
 			case .badPath:
-				updateLabel("Bad Path")
+				self.updateLabel("Bad Path")
 			case .invalidSignature:
-				updateLabel("Invalid Signature")
+				self.updateLabel("Invalid Signature")
 			case .cannotGenerateMap:
-				updateLabel("Error Generating Map")
+				self.updateLabel("Error Generating Map")
 			default:
-				updateLabel("Error Creating Map")
+				self.updateLabel("Error Creating Map")
 			}
 			return
 		}
 
 		level = 0
+		score = 0
+		lives = 3
+
+		// Init characters
+		// TODO: Get positions from map data
+		pMan = PacMan(x: 13, y: 7)
+		blinky = Blinky(x: 13, y: 19)
+		pinky = Pinky(x: 13, y: 16)
+		inky = Inky(x: 11, y: 16)
+		clyde = Clyde(x: 15, y: 16)
 	}
 
 	required init?(coder aDecoder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
 
-	func setup() {
-		// TODO: Copy stuff from reload() into here and stop using reload
-		score = 0
-		lives = 3
-		ghostsEaten = 0
-		gameOver = false
-		whiteTimer = 0
-		prevScore = 0
-		powerTimer = 0
-		canResume = false
-		introPlaying = false
+	override func didMove(to view: SKView) {
+		super.didMove(to: view)
+		self.isPaused = true // Stops update() from calling while scene is initialising
 
-		hasStarted = false
-		newLevel = true // XXX
-		white = false
+		self.updateLabel("")
+		self.updateLivesTiles()
+		self.updateFruitTiles()
 
-		self.addDots()
-		self.addWalls()
+		self.loadMapSprites()
+
+		self.initAudio(audio: &self.secondaryAudio, url: self.eatGhostSound, loop: false, play: false)
+
+		self.addChild(pMan)
+
+		self.newLevel()
 	}
 
-	func addDots() {
-		for dot in dots {
-			dot.update()
-			self.addChild(dot)
+	func newLife() {
+		self.levelSetup()
+
+		self.newLifeAnimation()
+	}
+
+	func newLevel() {
+		self.levelSetup()
+
+		if level == 0 {
+			self.newGameAnimation()
+		} else {
+			self.newLifeAnimation()
 		}
 	}
 
-	func addWalls() {
-		for wall in walls {
-			wall.updatePos()
-			self.addChild(wall)
+	func loseLife() {
+		pMan.size = CGSize(width: 1.875 * Double(squareWidth), height: 1.5 * Double(squareWidth))
+		var frames = [SKTexture]()
+		for i in 1...11 {
+			frames.append(pMan.endAtlas.textureNamed("PacManD\(i)"))
 		}
-	}
+		pMan.isPaused = false
+		pMan.zRotation = 0
+		pMan.texture = frames[10]
 
-	func drawMap(map: Map) {
-		var x: Int = 0
-		var y: Int = 0
-		for square in map.squares {
-			walls.append(Wall(forSquare: square, x: x, y: y))
-			x += 1
-			if x > map.width {
-				x = 0
-				y += 1
-			}
+		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.9) {
+			self.initAudio(audio: &self.audio, url: self.deathSound, loop: false, play: true)
 		}
-	}
+		sleep(1)
 
-	func initAudio(audio: inout AVAudioPlayer, url: URL, loop: Bool, play: Bool) {
-		do {
-			audio = try AVAudioPlayer(contentsOf: url)
-			if mute {
-				audio.volume = 0
-			}
-			if loop {
-				audio.numberOfLoops = -1
-			}
-			audio.prepareToPlay()
-			if play {
-				audio.play()
-			}
-		} catch {
-			NSLog("Error Loading Audio File '\(url)': \(error)")
+		for ghost in ghosts {
+			ghost.removeFromParent()
 		}
-	}
 
-	func updateLabel(_ value: String) {
-		textField!.stringValue = value
-	}
-
-	func updateScore() { //TODO: can this be moved to score didSet?
-		let scoreChars = Array(String(score))
-		var lim = 6
-		if scoreChars.count < 6 {
-			lim = scoreChars.count
+		for reticle in [blinkyReticle, pinkyReticle, inkyReticle, clydeReticle] {
+			reticle.removeFromParent()
 		}
-		for i in lim...6 {
-			if i == 1 || i == 2 {
-				scoreTiles[i - 1].image = NSImage(named: "0")
+
+		debugLabel.removeFromParent()
+
+		for ghostLabel in [clydeDebug, inkyDebug, pinkyDebug, blinkyDebug] {
+			ghostLabel.removeFromParent()
+		}
+
+		pMan.position.y -= CGFloat(squareWidth) * 3 / 8
+		pMan.run(SKAction.animate(with: frames, timePerFrame: 0.1, resize: true, restore: true), withKey: "GameOver")
+
+		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1.05) {
+			pMan.removeFromParent()
+
+			if lives > 0 {
+				DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5) {
+					self.isPaused = true
+					lives -= 1
+
+					for dot in dots {
+						if dot.parent != nil {
+							dot.removeFromParent()
+						}
+					}
+
+					self.newLife()
+				}
 			} else {
-				scoreTiles[i - 1].image = nil
-			}
-		}
-		for i in 1...lim {
-			scoreTiles[i - 1].image = NSImage(named: String(scoreChars[scoreChars.count - i]))
-		}
-		if score > 10000 && prevScore < 10000 {
-			lives += 1
-			pMan.run(pMan.extraLife)
-			livesTiles[(lives - 1)].image = NSImage(named: "Life")
-		}
-		prevScore = score
-		if score > highScore {
-			highScore = score
-			for i in 1...lim {
-				highScoreTiles[i - 1].image = NSImage(named: String(scoreChars[scoreChars.count - i]))
+				self.textNode.texture = SKTexture(imageNamed: "Game Over")
+				self.textNode.size = CGSize(width: 88, height: 16)
+				DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5) {
+					self.addChild(mainScene.textNode)
+					self.isPaused = true
+					hasStarted = false
+				}
 			}
 		}
 	}
 
 	override func update(_ currentTime: TimeInterval) {
 		if gameOver {
-			if self.audio.url! == self.deathSound {
-				return
+//			if self.audio.url! == self.deathSound {
+//				return
+//			}
+//			pMan.deathFrames()
+
+			if self.audio.url! != self.deathSound {
+				self.loseLife()
 			}
-			pMan.deathFrames()
 		} else if whiteTimer > 0 {
 			if whiteTimer == 9 {
 				usleep(500000)
 			}
 			whiteTimer -= 1
-			if white {
-				self.whiteEffect.filter?.setValue(0, forKey: kCIInputBrightnessKey)
-			} else {
-				self.whiteEffect.filter?.setValue(1, forKey: kCIInputBrightnessKey)
-			}
-			if whiteTimer > 0{
+			//			if white {
+			//				self.whiteEffect.filter?.setValue(0, forKey: kCIInputBrightnessKey)
+			//			} else {
+			//				self.whiteEffect.filter?.setValue(1, forKey: kCIInputBrightnessKey)
+			//			}
+			self.whiteEffect.filter!.setValue(white ? 1 : 0, forKey: kCIInputBrightnessKey)
+
+			if whiteTimer > 0 {
 				white = !white
 			} else {
 				white = false
@@ -373,18 +395,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 			usleep(200000)
 		} else {
 			self.updateScore()
+
 			if gameMode == 2 {
-				switch toMove {
-				case .up?:
-					origin.y -= 1
-				case .down?:
-					origin.y += 1
-				case .left?:
-					origin.x += 1
-				case .right?:
-					origin.x -= 1
-				default:
-					break
+				if let dir = toMove {
+					switch dir {
+					case .up:
+						origin.y -= 1
+					case .down:
+						origin.y += 1
+					case .left:
+						origin.x += 1
+					case .right:
+						origin.x -= 1
+					}
 				}
 			} else {
 				pMan.move()
@@ -459,31 +482,49 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 				blinkyReticle.position = CGPoint(x: CGFloat(squareWidth * Double(blinky.targetSquare.x) + origin.x),
 												 y: CGFloat(squareWidth * Double(blinky.targetSquare.y) + origin.y))
 				pinkyReticle.position = CGPoint(x: CGFloat(squareWidth * Double(pinky.targetSquare.x) + origin.x),
-												 y: CGFloat(squareWidth * Double(pinky.targetSquare.y) + origin.y))
+												y: CGFloat(squareWidth * Double(pinky.targetSquare.y) + origin.y))
 				inkyReticle.position = CGPoint(x: CGFloat(squareWidth * Double(inky.targetSquare.x) + origin.x),
-												 y: CGFloat(squareWidth * Double(inky.targetSquare.y) + origin.y))
+											   y: CGFloat(squareWidth * Double(inky.targetSquare.y) + origin.y))
 				clydeReticle.position = CGPoint(x: CGFloat(squareWidth * Double(clyde.targetSquare.x) + origin.x),
-												 y: CGFloat(squareWidth * Double(clyde.targetSquare.y) + origin.y))
+												y: CGFloat(squareWidth * Double(clyde.targetSquare.y) + origin.y))
 			}
 		}
 	}
 
-	func eatGhost() {
-		if mute {
-			self.secondaryAudio.volume = 0
-		} else {
-			self.secondaryAudio.volume = 1
+	override func keyUp(with event: NSEvent) {
+		if gameOver {
+			return
 		}
-		self.secondaryAudio.play()
-		while self.secondaryAudio.isPlaying {
-			// FIXME: This is atrocious
-			continue
+
+		if directionKeyMap.keys.contains(event.keyCode) {
+			if toMove == directionKeyMap[event.keyCode] {
+				toMove = nil
+			}
 		}
-		if !(self.audio.url == self.fleeing && self.audio.isPlaying) {
-			self.initAudio(audio: &self.audio, url: self.fleeing, loop: true, play: true)
+	}
+
+	override func keyDown(with event: NSEvent) {
+		if event.keyCode == 46 {
+			toggleMute()
+			return
 		}
-		pMan.alpha = 1
-		self.scene?.isPaused = false
+
+		if gameOver {
+			if event.keyCode == 49 && mainScene.textNode.size == CGSize(width: 88, height: 16) { // XXX: The size check is a hack, maybe need to set a resettable flag
+				level = 0
+				lives = 2
+				mainScene.reset()
+			}
+			return
+		}
+
+		if directionKeyMap.keys.contains(event.keyCode) {
+			toMove = directionKeyMap[event.keyCode]
+		}
+
+		if gameModeKeyMap.contains(event.keyCode) {
+			gameMode = gameModeKeyMap.firstIndex(of: event.keyCode)!
+		}
 	}
 
 	func didBegin(_ contact: SKPhysicsContact) {
@@ -494,7 +535,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 		let contactMask = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
 		switch contactMask {
 		case gamePhysics.PacMan | gamePhysics.Dot:
-			if let dot = contact.bodyA.node as? Dot {
+			if let dot = contact.bodyB.node as? Dot {
 				if dot.isPower {
 					score += 50
 					for ghost in ghosts {
@@ -546,7 +587,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 				}
 			}
 		case gamePhysics.PacMan | gamePhysics.Ghost:
-			if gameMode == 1 {
+			if gameMode == 1 || gameMode == 3 {
 				break
 			}
 			if let ghost = contact.bodyB.node as? Ghost {
@@ -571,11 +612,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 					self.ghostCache = ghost
 				} else if ghost.state != .Fleeing {
 					self.audio.stop()
-					gameOver = true
+					gameOver = true // TODO: Replace gameOver and white vars with a single gameState variable
 				}
 			}
 		case gamePhysics.PacMan | gamePhysics.Fruit:
-			if let f = contact.bodyA.node as? Fruit {
+			if let f = contact.bodyB.node as? Fruit {
 				if !f.texture!.description.contains("fruit") {
 					if !mute {
 						pMan.run(pMan.eatFruit)
@@ -591,132 +632,318 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 		}
 	}
 
-	func getEdgeStates() -> [Bool] {
-		var result = [Bool]()
-		for wall in walls {
-			result.append(wall.edge)
-		}
-		return result
-	}
+	func loadMapSprites() {
+		// Reset all walls, dots and fruit
+		walls = [Wall]()
+		dots = [Dot]()
+		gfruits = [Fruit]()
 
-	func updateEdges() {
-		// TODO: Delete
-		for (i, wall) in walls.enumerated() {
-			var up = false
-			var down = false
-			var left = false
-			var right = false
-			if i >= map.width {
-				up = walls[i - map.width].edge
-			}
-			if i <= walls.count - map.width - 1 {
-				down = walls[i + map.width].edge
-			}
-			if i > 0 {
-				left = walls[i - 1].edge
-			}
-			if i < walls.count - 2 {
-				right = walls[i + 1].edge
-			}
-			if up || down || left || right {
-				wall.edge = true
+		for y in 0..<map.height {
+			for x in 0..<map.width {
+				let square = map.squares[y * map.width + x]
+				if square.wall {
+					// TODO: implement proper algorithm (it's on paper somewhere...): need a function in map that finds the edges of the map
+					let wall = Wall(forSquare: square, x: x, y: y)
+					walls.append(wall)
+					self.whiteEffect.addChild(wall)
+				} else if square.dot {
+					let dot = Dot(x: x, y: y, power: square.power)
+					dots.append(dot)
+				} else if square.fruit {
+					gfruits.append(Fruit(x: x, y: y, type: levelFruit[levelFruit.count - 1]))
+				}
 			}
 		}
+
+		self.thresh1 = dots.count / 2
+		self.thresh2 = dots.count / 10
 	}
 
-	func reload() {
-		// TODO: This is a bit of a hack and could probably do with a proper rework
-		toMove = nil // FIXME: Make toMove a pMan attribute
+	func levelSetup() {
+		ghostsEaten = 0
+		gameOver = false
+		whiteTimer = 0
+		prevScore = 0
+		powerTimer = 0
+		canResume = false
+		introPlaying = false
+
+		hasStarted = false
+		white = false
+
 		for f in gfruits {
 			f.timer = 0
 		}
+
+		// Set up Pac-Man
 		pMan.square = IntCoords(x: 13, y: 7)
-		pMan.inSquare = Coords(x: squareWidth, y: squareWidth / 2)
-		pMan.globalPos = Coords(x: squareWidth * Double(pMan.square.x) + pMan.inSquare.x, y: squareWidth * Double(pMan.square.y) + pMan.inSquare.y) // XXX: Is this covered in pMan.updateSquare()?
-		pMan.texture = pMan.frames[2]
-		pMan.direction = .left
-		pMan.zRotation = .pi
-		pMan.position = CGPoint(x: CGFloat(pMan.startCoords.x), y: CGFloat(pMan.startCoords.y))
+		pMan.setup()
+
+		// These can be moved into the main thing if they aren't used anywhere else
+		self.addDots()
+		self.addWalls()
+		// ----
+
+		// TODO: Replace all the coords here with ones obtained from the map
+
+		// Set up ghosts
+
+		// -------------------------------------
+		// TEMPORARY - WILL BE REMOVED
 		blinky.square = IntCoords(x: 13, y: 19)
 		pinky.square = IntCoords(x: 13, y: 16)
 		inky.square = IntCoords(x: 11, y: 16)
 		clyde.square = IntCoords(x: 15, y: 16)
+		// -------------------------------------
+
 		for ghost in ghosts {
-			ghost.inSquare = Coords(x: Double(squareWidth), y: Double(squareWidth) / 2)
-			ghost.texture = ghost.atlas.textureNamed("\(ghost.nameAsString)U1")
-			ghost.globalPos = Coords(x: squareWidth * Double(ghost.square.x) + ghost.inSquare.x,
-									 y: squareWidth * Double(ghost.square.y) + ghost.inSquare.y)
-			ghost.direction = .up
-			ghost.waitCount = 0
-			ghost.state = .GhostHouse // This currently sets blinky's state to ghosthouse and causes his targetsquare to break slightly
-										// but somehow he still follows Pac-Man... maybe .GhostHouse behaviour needs to be looked into as well
+			ghost.setup()
+			// Setting ghost state to .GhostHouse currently sets blinky's state to GhostHouse after a reset and causes his targetsquare to break slightly
+			// but somehow he still follows Pac-Man... maybe .GhostHouse behaviour needs to be looked into as well
 		}
-		powerTimer = 0
-		canResume = false
-		introPlaying = false
-		ghostsEaten = 0
-		gameOver = false
-		mainScene = GameScene(size: self.size) // re-creating the scene again every time is probably not the best solution, maybe have a proper initialisation/reset function that handles all of this??
-		// This currently re-creates all of the dots
+	}
+
+	func refreshView() {
+		self.isPaused = false
+		self.isPaused = true
+	}
+
+	func addDots() {
 		for dot in dots {
-			if dot.parent != nil {
-				dot.removeFromParent()
-				mainScene.addChild(dot)
+			dot.update()
+			self.addChild(dot)
+		}
+	}
+
+	func addWalls() {
+		for wall in walls {
+			wall.updatePos()
+			wall.updateTexture()
+		}
+	}
+
+	func drawMap(map: Map) {
+		var x: Int = 0
+		var y: Int = 0
+		for square in map.squares {
+			walls.append(Wall(forSquare: square, x: x, y: y))
+			x += 1
+			if x > map.width {
+				x = 0
+				y += 1
 			}
 		}
-		for wall in walls {
-			wall.removeFromParent()
-		}
-		self.view?.presentScene(mainScene)
 	}
+
+	func addGhosts() {
+		for ghost in ghosts {
+			ghost.updatePos()
+			self.addChild(ghost)
+		}
+
+		if debug {
+			for reticle in [blinkyReticle, pinkyReticle, inkyReticle, clydeReticle] {
+				reticle.size = CGSize(width: squareWidth, height: squareWidth)
+				self.addChild(reticle)
+			}
+		}
+	}
+
+	func newGameAnimation() {
+		score = 0
+		self.updateScore()
+		self.addChild(self.textNode)
+		self.initAudio(audio: &self.audio, url: self.intro, loop: false, play: true)
+		introPlaying = true
+
+		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 4.0) {
+			self.textNode.removeFromParent()
+			lives -= 1
+			self.updateLivesTiles()
+			self.refreshView()
+		}
+
+		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 4.5) {
+			// TODO: The queue timer isn't pausing
+			// -- possibly take the current elapsed time (cache original .now() and minus from current .now()) and create new dispatchqueue with new timer?
+			self.isPaused = false
+			canResume = true
+			introPlaying = false
+
+			self.addGhosts()
+
+			self.audio.stop()
+			self.initAudio(audio: &self.audio, url: self.bg1, loop: true, play: true)
+			hasStarted = true
+		}
+	}
+
+	func newLifeAnimation() {
+		self.addChild(pMan)
+		self.addGhosts()
+		self.refreshView()
+
+		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2.0) {
+
+			blinky.spd = CGFloat(squareWidth) / 8
+
+			// TODO: if the level isn't being reloaded anymore then this can be removed
+			let remaining = dots.filter{$0.parent != nil}.count
+			let audioURL: URL?
+
+			if remaining <= self.thresh2 {
+				blinky.spd *= 1.1
+				audioURL = self.bg3
+			} else if remaining <= self.thresh1 {
+				blinky.spd *= 1.05
+				audioURL = self.bg2
+			} else {
+				audioURL = self.bg1
+			}
+
+			if let url = audioURL {
+				self.initAudio(audio: &self.audio, url: url, loop: true, play: true)
+			}
+			// -----
+
+			self.isPaused = false
+			canResume = true
+		}
+	}
+
+	func initAudio(audio: inout AVAudioPlayer, url: URL, loop: Bool, play: Bool) {
+		do {
+			audio = try AVAudioPlayer(contentsOf: url)
+			if mute {
+				audio.volume = 0
+			}
+			if loop {
+				audio.numberOfLoops = -1
+			}
+			audio.prepareToPlay()
+			if play {
+				audio.play()
+			}
+		} catch {
+			NSLog("Error Loading Audio File '\(url)': \(error)")
+		}
+	}
+
+	func updateLabel(_ value: String) {
+		textField!.stringValue = value
+	}
+
+	func updateScore() { // TODO: can this be moved to score didSet?
+		let scoreChars = Array(String(score))
+		var lim = 6
+		if scoreChars.count < 6 {
+			lim = scoreChars.count
+		}
+		for i in lim...6 {
+			if i == 1 || i == 2 {
+				scoreTiles[i - 1].image = NSImage(named: "0")
+			} else {
+				scoreTiles[i - 1].image = nil
+			}
+		}
+		for i in 1...lim {
+			scoreTiles[i - 1].image = NSImage(named: String(scoreChars[scoreChars.count - i]))
+		}
+		if score > 10000 && prevScore < 10000 {
+			lives += 1
+			pMan.run(pMan.extraLife)
+			livesTiles[(lives - 1)].image = NSImage(named: "Life")
+		}
+		prevScore = score
+		if score > highScore {
+			highScore = score
+			for i in 1...lim {
+				highScoreTiles[i - 1].image = NSImage(named: String(scoreChars[scoreChars.count - i]))
+			}
+		}
+	}
+
+	func eatGhost() {
+		if mute {
+			self.secondaryAudio.volume = 0
+		} else {
+			self.secondaryAudio.volume = 1
+		}
+		self.secondaryAudio.play()
+		while self.secondaryAudio.isPlaying {
+			// FIXME: This is atrocious
+			continue
+		}
+		if !(self.audio.url == self.fleeing && self.audio.isPlaying) {
+			self.initAudio(audio: &self.audio, url: self.fleeing, loop: true, play: true)
+		}
+		pMan.alpha = 1
+		self.scene?.isPaused = false
+	}
+
+//	func reload() {
+//		toMove = nil // FIXME: Make toMove a pMan attribute
+//		for f in gfruits {
+//			f.timer = 0
+//		}
+//
+//		pMan.square = IntCoords(x: 13, y: 7)
+//		pMan.inSquare = Coords(x: squareWidth, y: squareWidth / 2)
+//		pMan.globalPos = Coords(x: squareWidth * Double(pMan.square.x) + pMan.inSquare.x, y: squareWidth * Double(pMan.square.y) + pMan.inSquare.y) // XXX: Is this covered in pMan.updateSquare()?
+//		pMan.texture = pMan.frames[2]
+//		pMan.direction = .left
+//		pMan.zRotation = .pi
+//		pMan.position = CGPoint(x: CGFloat(pMan.startCoords.x), y: CGFloat(pMan.startCoords.y))
+//
+//		blinky.square = IntCoords(x: 13, y: 19)
+//		pinky.square = IntCoords(x: 13, y: 16)
+//		inky.square = IntCoords(x: 11, y: 16)
+//		clyde.square = IntCoords(x: 15, y: 16)
+//		for ghost in ghosts {
+//			ghost.inSquare = Coords(x: Double(squareWidth), y: Double(squareWidth) / 2)
+//			ghost.texture = ghost.atlas.textureNamed("\(ghost.nameAsString)U1")
+//			ghost.globalPos = Coords(x: squareWidth * Double(ghost.square.x) + ghost.inSquare.x,
+//									 y: squareWidth * Double(ghost.square.y) + ghost.inSquare.y)
+//			ghost.direction = .up
+//			ghost.waitCount = 0
+//			ghost.state = .GhostHouse // This currently sets blinky's state to ghosthouse and causes his targetsquare to break slightly
+//										// but somehow he still follows Pac-Man... maybe .GhostHouse behaviour needs to be looked into as well
+//		}
+//		powerTimer = 0
+//		canResume = false
+//		introPlaying = false
+//		ghostsEaten = 0
+//		gameOver = false
+//		mainScene = GameScene(size: self.size) // re-creating the scene again every time is probably not the best solution, maybe have a proper initialisation/reset function that handles all of this??
+//		// This currently re-creates all of the dots
+//		for dot in dots {
+//			if dot.parent != nil {
+//				dot.removeFromParent()
+//				mainScene.addChild(dot)
+//			}
+//		}
+//		for wall in walls {
+//			wall.removeFromParent()
+//		}
+//		self.view!.presentScene(mainScene)
+//	}
 
 	func reset() {
 		self.removeAllChildren()
-		newLevel = true
-		self.reload()
-	}
 
-	override func keyUp(with event: NSEvent) {
-		if gameOver {
-			return
+		self.isPaused = true
+
+		for wall in walls {
+			wall.removeFromParent()
 		}
 
-		if directionKeyMap.keys.contains(event.keyCode) {
-			if toMove == directionKeyMap[event.keyCode] {
-				toMove = nil
+		for dot in dots {
+			if dot.parent != nil {
+				dot.removeFromParent()
 			}
 		}
-	}
 
-	override func keyDown(with event: NSEvent) {
-		if event.keyCode == 46 {
-			toggleMute()
-			return
-		}
-
-		if gameOver {
-			if event.keyCode == 49 && mainScene.textNode.size == CGSize(width: 88, height: 16) { // XXX: The size check is a hack, maybe need to set a resettable flag
-				level = 0
-				lives = 2
-				mainScene.reset()
-			}
-			return
-		}
-
-		if directionKeyMap.keys.contains(event.keyCode) {
-			toMove = directionKeyMap[event.keyCode]
-		}
-
-		switch event.keyCode {
-		case 18:
-			gameMode = 1
-		case 19:
-			gameMode = 2
-		case 29:
-			gameMode = 0
-		default:
-			break
-		}
+		self.newLife()
 	}
 
 	func updateLivesTiles() {
@@ -741,151 +968,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // TODO: Look into body wit
 				fruitTiles[i].image = NSImage(named: name)
 			} else {
 				fruitTiles[i].image = nil
-			}
-		}
-	}
-
-	override func didMove(to view: SKView) {
-		super.didMove(to: view)
-		self.isPaused = true // Stops update() from calling while scene is initialising
-
-		self.setup()
-
-		updateLabel("")
-
-		// TODO: These should be moved out of didMove and Sprite should have a reset/setup method
-        pMan = PacMan(x: 13, y: 7)
-        blinky = Blinky(x: 13, y: 19)
-        pinky = Pinky(x: 13, y: 16)
-        inky = Inky(x: 11, y: 16)
-        clyde = Clyde(x: 15, y: 16)
-
-		self.updateLivesTiles()
-		self.updateFruitTiles()
-		// TODO: Animation at start of game where life disappears: start lives on 3 then decrease by 1
-
-		self.initAudio(audio: &self.secondaryAudio, url: self.eatGhostSound, loop: false, play: false)
-
-		// ==========================================================
-		// TODO: Add a createWalls() or similar function that creates all the walls and sets them up correctly
-		// TODO: Replace x and y with enumerations or similar?
-		// -- Maybe `for x in 0...map.width`
-		// -- and `for y in 0...map.height`
-		// -- then do `squares[y+map.width + x]`??
-		var x: Int = 0
-		var y: Int = 0
-		if newLevel {
-			walls = [Wall]()
-			dots = [Dot]()
-			gfruits = [Fruit]()
-
-			for square in map.squares {
-				if square.wall {
-					// TODO: implement proper algorithm (it's on paper somewhere...): need a function in map that finds the edges of the map
-					// IDEA FOR A NEW ALGORITHM:
-					// Fill in from each edge until a non-wall square is found, each wall is marked as an edge
-					// --> just need to do each row horizontally from both ends (or only 1 end if all walls are edge)
-					let wall = Wall(forSquare: square, x: x, y: y)
-					walls.append(wall)
-					self.whiteEffect.addChild(wall)
-				} else if square.dot {
-					let dot = Dot(x: x, y: y, power: square.power)
-					dots.append(dot)
-					self.addChild(dot)
-				} else if square.fruit {
-					gfruits.append(Fruit(x: x, y: y, type: levelFruit[levelFruit.count - 1]))
-				}
-				x += 1
-				if x == map.width {
-					x = 0
-					y += 1
-				}
-			}
-
-			newLevel = false
-		} else {
-			for wall in walls {
-				self.whiteEffect.addChild(wall)
-				wall.updatePos()
-			}
-			for dot in dots {
-				dot.update()
-			}
-		}
-		// ==========================================================
-
-		self.thresh1 = dots.count / 2
-		self.thresh2 = dots.count / 10
-
-		for wall in walls {
-			wall.updateTexture()
-		}
-		// FIXME: There are a lot of calls of `for wall in walls` above, maybe look into reducing that?
-
-		self.addChild(pMan)
-
-		ghostsEaten = 0
-		if level == 0 && !hasStarted {
-			score = 0
-			self.updateScore()
-			self.addChild(self.textNode)
-			self.initAudio(audio: &self.audio, url: self.intro, loop: false, play: true)
-			introPlaying = true
-
-			DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 4.0) {
-				self.textNode.removeFromParent()
-				lives -= 1
-				self.updateLivesTiles()
-				self.isPaused = false
-				self.isPaused = true
-			}
-			DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 4.5) {
-				// TODO: The queue timer isn't pausing
-				// -- possibly take the current elapsed time (cache original .now() and minus from current .now()) and create new dispatchqueue with new timer?
-				self.isPaused = false
-				canResume = true
-				introPlaying = false
-				for ghost in ghosts {
-					self.addChild(ghost)
-				}
-
-				if debug {
-					for reticle in [blinkyReticle, pinkyReticle, inkyReticle, clydeReticle] {
-						reticle.size = CGSize(width: squareWidth, height: squareWidth)
-						self.addChild(reticle)
-					}
-				}
-				
-				self.audio.stop()
-				self.initAudio(audio: &self.audio, url: self.bg1, loop: true, play: true)
-				hasStarted = true
-			}
-		} else {
-			DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2.0) {
-				self.textNode.removeFromParent()
-				self.isPaused = false
-				self.isPaused = true
-				blinky.spd = CGFloat(squareWidth) / 8
-				let remaining = dots.filter{$0.parent != nil}.count
-				if remaining <= self.thresh2 {
-					blinky.spd *= 1.1
-					self.initAudio(audio: &self.audio, url: self.bg3, loop: true, play: true)
-				} else if remaining <= self.thresh1 {
-					blinky.spd *= 1.05
-					self.initAudio(audio: &self.audio, url: self.bg2, loop: true, play: true)
-				} else {
-					self.initAudio(audio: &self.audio, url: self.bg1, loop: true, play: true)
-				}
-				for ghost in ghosts {
-					self.addChild(ghost)
-				}
-				if debug {
-					for reticle in [blinkyReticle, pinkyReticle, inkyReticle, clydeReticle] {
-						self.addChild(reticle)
-					}
-				}
-				self.isPaused = false
-				canResume = true
 			}
 		}
 	}

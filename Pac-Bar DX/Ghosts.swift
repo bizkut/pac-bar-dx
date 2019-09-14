@@ -48,7 +48,7 @@ class Ghost: Sprite {
 			speed: CGFloat(squareWidth) / 8
 		)
 
-		self.inSquare.x = squareWidth / 2
+		self.inSquare.x = squareWidth / 2 // weird because reset() lists this as just squareWidth, check which one is right (I have a feeling it's this one)
 
 		self.updatePos()
 		self.generateTexture()
@@ -56,6 +56,15 @@ class Ghost: Sprite {
 
 	required init?(coder aDecoder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
+	}
+
+	func setup() {
+		self.inSquare = Coords(x: squareWidth / 2, y: squareWidth / 2)
+		self.texture = self.atlas.textureNamed("\(self.nameAsString)U1")
+		self.direction = .up
+		self.waitCount = 0
+		self.state = .GhostHouse
+		self.updatePos() // Could the key bits of code be extracted from here so it doesn't run all the other stuff??
 	}
 
 	func availableDirections(includesReverse: Bool) -> [Direction] {
@@ -288,6 +297,7 @@ class Ghost: Sprite {
 					bestSquare = IntCoords(x: square.x, y: square.y)
 				}
 			}
+
 			if let best = bestSquare {
 				self.targetSquare = best
 			}

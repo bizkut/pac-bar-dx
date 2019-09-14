@@ -50,14 +50,23 @@ class PacMan: Sprite {
 					   gamePhysics.Dot | gamePhysics.Ghost],
 			speed: CGFloat((1.33 / 8) * Double(squareWidth))
 		) // TODO: Check hitbox sizing
-        self.position = CGPoint(x: CGFloat(self.startCoords.x), y: CGFloat(self.startCoords.y))
-		self.zRotation = .pi
-		self.direction = .left
-		self.updateSquare()
+
+        self.setup()
 	}
 
 	required init?(coder aDecoder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
+	}
+
+	func setup() {
+		self.size = CGSize(width: 1.625 * Double(squareWidth), height: 1.625 * Double(squareWidth))
+		self.position = CGPoint(x: CGFloat(self.startCoords.x), y: CGFloat(self.startCoords.y))
+		self.texture = self.frames[2]
+		self.zRotation = .pi
+		self.inSquare = Coords(x: squareWidth, y: squareWidth / 2)
+		self.direction = .left
+		self.globalPos = Coords(x: squareWidth * Double(self.square.x) + self.inSquare.x, y: squareWidth * Double(self.square.y) + self.inSquare.y)
+		origin = Coords(x: Double(self.position.x) - self.globalPos.x + squareWidth / 2, y: Double(self.position.y) - self.globalPos.y + squareWidth / 2)
 	}
 
 	func nextFrame() {
@@ -93,25 +102,25 @@ class PacMan: Sprite {
 		case self.direction:
 			return
 		case .up:
-			if map.isWall(x: self.square.x, y: self.square.y + 1, includeGhostHouse: true) {
+			if gameMode != 3 && map.isWall(x: self.square.x, y: self.square.y + 1, includeGhostHouse: true) {
 				return
 			} else {
 				self.zRotation = CGFloat(0.5 * .pi)
 			}
 		case .down:
-			if map.isWall(x: self.square.x, y: self.square.y - 1, includeGhostHouse: true) {
+			if gameMode != 3 && map.isWall(x: self.square.x, y: self.square.y - 1, includeGhostHouse: true) {
 				return
 			} else {
 				self.zRotation = CGFloat(1.5 * .pi)
 			}
 		case .left:
-			if map.isWall(x: self.square.x - 1, y: self.square.y, includeGhostHouse: true) {
+			if gameMode != 3 && map.isWall(x: self.square.x - 1, y: self.square.y, includeGhostHouse: true) {
 				return
 			} else {
 				self.zRotation = CGFloat(1.0 * .pi)
 			}
 		case .right:
-			if map.isWall(x: self.square.x + 1, y: self.square.y, includeGhostHouse: true) {
+			if gameMode != 3 && map.isWall(x: self.square.x + 1, y: self.square.y, includeGhostHouse: true) {
 				return
 			} else {
 				self.zRotation = 0
@@ -142,6 +151,7 @@ class PacMan: Sprite {
 
 	func availableDirections() -> [Direction] {
 		var directions = [Direction]()
+
 		if !map.isWall(x: self.square.x + 1, y: self.square.y, includeGhostHouse: true) {
 			directions.append(.right)
 		}
@@ -154,10 +164,14 @@ class PacMan: Sprite {
 		if !map.isWall(x: self.square.x, y: self.square.y - 1, includeGhostHouse: true) {
 			directions.append(.down)
 		}
+
 		return directions
 	}
 
 	func canContinue() -> Bool {
+		if gameMode == 3 {
+			return true
+		}
 		let available = self.availableDirections()
 		switch self.direction {
 		case .up:
@@ -190,6 +204,7 @@ class PacMan: Sprite {
 		if gameOver {
 			return
 		}
+		
 		if self.isEating {
 			self.isEating = false
 			return
@@ -245,52 +260,5 @@ class PacMan: Sprite {
 			self.animationFrameCounter += 1
 		}
 		self.updateSquare()
-	}
-
-	func deathFrames() {
-		// FIXME: Check/adjust timing
-		self.size = CGSize(width: 1.875 * Double(squareWidth), height: 1.5 * Double(squareWidth))
-		var frames = [SKTexture]()
-		for i in 1...11 {
-			frames.append(self.endAtlas.textureNamed("PacManD\(i)"))
-		}
-		self.isPaused = false
-		self.zRotation = 0
-		self.texture = self.endAtlas.textureNamed("PacManD11")
-		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.9) {
-			mainScene.initAudio(audio: &mainScene.audio, url: mainScene.deathSound, loop: false, play: true)
-		}
-		sleep(1)
-		for ghost in ghosts {
-			ghost.removeFromParent()
-		}
-		for reticle in [blinkyReticle, pinkyReticle, inkyReticle, clydeReticle] {
-			reticle.removeFromParent()
-		}
-		debugLabel.removeFromParent()
-		for debugLabel in [clydeDebug, inkyDebug, pinkyDebug, blinkyDebug] {
-			debugLabel.removeFromParent()
-		}
-		self.position.y -= CGFloat(squareWidth) * 3 / 8
-		self.run(SKAction.animate(with: frames, timePerFrame: 0.1, resize: true, restore: true), withKey: "GameOver")
-		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1.05) {
-			self.removeFromParent()
-			if lives <= 0 {
-				mainScene.textNode.texture = SKTexture(imageNamed: "Game Over")
-				mainScene.textNode.size = CGSize(width: 88, height: 16)
-				DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5) {
-					mainScene.addChild(mainScene.textNode)
-					self.scene?.isPaused = true
-					hasStarted = false
-				}
-			} else {
-				DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5) {
-					self.scene?.isPaused = true
-					lives -= 1
-					mainScene.reload()
-				}
-			}
-		}
-
 	}
 }

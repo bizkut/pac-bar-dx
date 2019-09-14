@@ -38,7 +38,7 @@ class Wall: SKSpriteNode {
 		self.position.y = CGFloat(squareWidth * Double(self.coords.y) + origin.y)
 	}
 
-	func ease(x: Int, y: Int) -> Bool {
+	func ease(x: Int, y: Int) -> Bool { // XXX: Hack probably
 		return map.isWall(x: self.coords.x + x, y: self.coords.y + y)
 	}
 
@@ -148,7 +148,11 @@ class Wall: SKSpriteNode {
 	}
 
 	func setEdgeTexture(edgeDirection: Direction) {
-		let curve = self.findCurve
+		// This is WIP and will break
+		// This function should eventually be used for figuring out which texture the wall should be
+		// ...when it's eventually finished
+
+		let curve = self.findCurve // Needs to be a function call
 		switch curve {
 			// Add all 10 primary cases with 4 switch statements in each except none (37 total textures) - GOOD LUCK!
 		default:
@@ -162,11 +166,8 @@ class Wall: SKSpriteNode {
 			ease(x: -1, y: 0),                     ease(x: 1, y: 0),
 			ease(x: -1, y: -1), ease(x: 0, y: -1), ease(x: 1, y: -1)
 		]
-		/*var binaryString: String = ""
-		for tile in adjacent {
-			binaryString.append(String(describing: NSNumber(booleanLiteral: tile)))
-		}*/
-		// TODO: Source/Dest system
+
+		// TODO: Source/Dest system for determining texture
 		let isEdge = self.coords.x == 0 || self.coords.x == map.width - 1 || self.coords.y == 0 || self.coords.y == (map.squares.count / map.width) - 1
 		self.edge = isEdge
 		let U = adjacent[1]
